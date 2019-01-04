@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>文件预览</title>
+    <style type="text/css">
+        #header-caption {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body style="height: 100%; margin: 0;">
+<div id="placeholder" style="height: 100%"></div>
+<script type="text/javascript" src="http://10.10.38.44:8089/web-apps/apps/api/documents/api.js"></script>
+<!--<script type="text/javascript" src="http://192.168.1.4:8089/web-apps/apps/api/documents/api.js"></script>-->
+<script src="js/jquery-3.3.1.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+        //判断文件类型(如".jpeg|.gif|.jpg|.png|.bmp|.pic|")
+        function containedFileTypes(types, fileName) {
+            if (fileName.indexOf(".") > -1) {
+                const p = fileName.lastIndexOf(".");
+                let strPostfix = fileName.substring(p, fileName.length) + '|';
+                strPostfix = strPostfix.toLowerCase();
+                if (types.indexOf(strPostfix) > -1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        const fileURL = decodeURI(getQueryString("fileURL")) || '';
+        const fileType = getQueryString("fileType") || '';
+        const fileName = decodeURI(getQueryString("fileName")) || '';
+
+        let documentType = "";
+        if (containedFileTypes('.doc|.docx|.docm|.dot|.dotx|.dotm|.odt|.fodt|.ott|.rtf|.txt|.html|.htm|.mht|.pdf|.djvu|.fb2|.epub|.xps|', fileType)) {
+            documentType = "text";
+        }else if (containedFileTypes('.xls|.xlsx|.xlsm|.xlt|.xltx|.xltm|.ods|.fods|.ots|.csv|',fileType)){
+            documentType = 'spreadsheet';
+        }else if (containedFileTypes('.pps|.ppsx|.ppsm|.ppt|.pptx|.pptm|.pot|.potx|.potm|.odp|.fodp|.otp',fileType)){
+            documentType = 'presentation';
+        }
+        window.docEditor = new DocsAPI.DocEditor("placeholder",
+            {
+                //包含与文档有关的所有参数（标题，网址，文件类型等）;
+                "document": {
+                    //查看的文件类型
+                    "fileType": fileType || '',
+                    // "key": "apiwh1b926a38-56df-4e12-8056-b6fed8dd1222",
+                    //(必填)为查看或编辑的文档时的文件名，该文件名也将在下载文档时使用
+                    "title": fileName,
+                    //需要  urlencoding
+                    "url": fileURL
+                },
+                "documentType": documentType, //spreadsheet text  presentation
+                //定义与编辑器界面有关的参数：打开模式（查看器或编辑器），界面语言，附加按钮，
+                "editorConfig": {
+                    //view查看;  edit编辑;默认为编辑
+                    "mode": "view",
+                    //语言: 默认为"en-US"
+                    "lang": "zh-CN",
+                    "customization": {
+                        //自动保存
+                        "autosave": true,
+                        //显示或隐藏聊天菜单按
+                        "chat": false,
+                        //侧栏标签"关于我"
+                        "customer": {
+                            "address": "山东省济南市高新区新泺大街2008号银荷大厦D座9层 ",
+                            "logo": "http://10.10.50.110/seeyon/fileUpload.do?method=showRTE&fileId=-8056784936697773836&type=image",
+                            //"mail": "john@example.com",
+                            "name": "泰华智慧",
+                            "info": "理想 扎实 创新 诚信 共享",
+                            "www": "http://www.telchina.com.cn"
+                        },
+                        //侧边反馈栏,点击跳转其他地址
+                        // "feedback": {
+                        //     "url": "https://feedback.example.com",
+                        //     "visible": true
+                        // },
+                        //隐藏` Go to Documents`按钮
+                        "goback": false,
+                        "help": false,
+                        //左上角的图片,建议高度为20px
+                        "logo": {
+                            "image": "http://10.10.50.110/seeyon/fileUpload.do?method=showRTE&fileId=-8056784936697773836&type=image",
+                            "url": "http://www.telchina.com.cn"
+                        },
+                        "showReviewChanges": false,
+                        "zoom": 100,
+                        //删除自带的插件: rm -rf /var/www/onlyoffice/documentserver/sdkjs-plugins/
+                        "plugins": {"autostart": [], "pluginsData": []}
+                    }
+                },
+                "height": "100%",
+                "width": "100%"
+            }
+        );
+    });
+
+</script>
+</body>
+</html>
+
